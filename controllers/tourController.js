@@ -1,6 +1,8 @@
 // const fs = require('fs');
 const Tour = require('./../models/tourModel');
 const APIfeatures = require('./../utils/apiFeatures');
+const catchAsync = require('./../utils/catchAsync');
+const AppError = require('./../utils/appError');
 
 // Reading data from tours.json file
 // const tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`));
@@ -34,9 +36,10 @@ const aliasTopTours = (req, res, next) => {
 
 // TOURS ROUTE HANDLER
 
+//Try and catch was used to handle errors in async functions, but now replaced by catchAsync utility function
 // CREATE TOUR
-const createTour =  async (req, res) => {
-    try{
+
+const createTour = catchAsync(async (req, res, next) => {
     const newTour = await Tour.create(req.body);
  res.status(201).json({
         status: 'success',
@@ -44,18 +47,12 @@ const createTour =  async (req, res) => {
             Tour: newTour
         }
     });
-    }catch(err){
-       res.status(400).json({
-           status: 'fail',
-           message: err
-       })
-      
-    }};
+    });
 
 
 // GET ALL TOURS
-const getAllTour = async(req, res) => {
-    try{
+const getAllTour = catchAsync(async(req, res, next) => {
+    // try{
         // QUERY BUILDING
         // (1A) FILTERING
         // req.query gets the query strings
@@ -116,46 +113,40 @@ const getAllTour = async(req, res) => {
 // The filter code below works same as above
         // const tours = await Tour.find().where('duration').lte(5).where('difficulty').equals('easy');
 
-    res.status(200).json({
-        status: 'success',
-        result : tours.length,
-        data:{
-            tours
-        }
-    });
-    }catch(err){
-      res.status(400).json({
-        status: 'Failed', 
-        message: err
-      })
-    };
-}
+    // res.status(200).json({
+    //     status: 'success',
+    //     result : tours.length,
+    //     data:{
+    //         tours
+    //     }
+    // });
+    // }catch(err){
+    //   res.status(400).json({
+    //     status: 'Failed', 
+    //     message: err
+    //   })
+    // };
+});
 
 // GET A TOUR
-    const getTourById = async (req, res) =>{  
-        try{
-
+    const getTourById = catchAsync(async (req, res, next) =>{ 
     // both lines of code below work the same, but if you want to find other param apart from _id, then use findOne
     const tour = await Tour.findById(req.params.id);
     // const tour = await Tour.findOne({id: req.params.id});
-        res.status(200).json({
-         status: 'success',
-         data: {
-             Data:{
-                 tour
-             } 
-         }
-     })}catch(err){
-        res.status(400).json({
-            status: 'Failed',
-            Message: 'Tour Not Found'
-        })
-     };
-     
-     }
+    if (!tour) {
+    return res.status(404).json({
+            status: 'failed',
+            message: 'Tour not found'
+
+    })};
+    res.status(200).json({
+        status: 'success',
+        data: { tour }
+    });
+});
+
 // UPDATE TOUR BY ID
-     const updateTour = async (req, res) => {
-        try{
+     const updateTour = catchAsync(async (req, res, next) => {
         const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
             new:true,
             runValidators:true
@@ -165,17 +156,11 @@ const getAllTour = async(req, res) => {
          data: {
              tour
             }
-        }) }catch(err){
-            res.status(403).json({
-                status: "failed",
-                message: 'Tour NOt Updated'
-            })
-        }
-     }
+        }) 
+     })
 
 // DELETE TOUR BY ID
-const deleteTour = async (req, res) => {
-    try {
+const deleteTour = catchAsync(async (req, res, next) => {
         const deletedTour = await Tour.findByIdAndDelete(req.params.id);
         if (!deletedTour) {
             res.status(404).json({
@@ -188,17 +173,10 @@ const deleteTour = async (req, res) => {
             status: 'success',
             message: `Tour title "${deletedTour.name}" was deleted successfully`
         });
-    } catch (err) {
-        res.status(500).json({
-            status: 'failed',
-            message: 'An error occurred while deleting the tour'
-        });
-    }
-};
+});
 
 // AGGREGATION PIPELINE - Matching and Grouping
-const getTourStats = async (req, res)=> {
-try{
+const getTourStats = catchAsync(async (req, res, next)=> {
 const stats = await Tour.aggregate([
     {
         $match: {ratingsAverage:{$gte:4.5}}
@@ -223,20 +201,12 @@ const stats = await Tour.aggregate([
         Total: stats.length,
         Message: stats
     })
-    }catch(err){
-        res.status(400).json({
-            status:'Failed',
-            message:'Unable to get Statistics'
-        })
-     
-    }
-    }
+    });
 
     // AGGREGATION PIPELINE - Unwinding and Projecting
     // $Unwind will deconstruct an array of object
     // Projecting will hide a document field
-    const getMonthlyPlan = async (req, res)=>{
-        try{
+    const getMonthlyPlan = catchAsync(async (req, res, next)=>{
             const year = req.params.year * 1;
            const plan = await Tour.aggregate([
             {
@@ -279,12 +249,7 @@ const stats = await Tour.aggregate([
             Total:plan.length,
             Message: plan
            })
-        }catch(err){
-            res.status(400).json({
-                status: 'Failed',
-                Message: 'Request Failed'
-            })
-        }
-    }
+        
+    });
 
      module.exports = {aliasTopTours, getAllTour, createTour, getTourById, updateTour, deleteTour, checkId, getTourStats, getMonthlyPlan};

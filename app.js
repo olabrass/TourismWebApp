@@ -4,6 +4,8 @@ const morgan = require('morgan');
 const app = express();
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
+const AppError = require('./utils/appError')
+const golabalErrorHandler = require('./controllers/errorController');
 
 // midleware for accepting data
 app.use(express.json());
@@ -30,23 +32,21 @@ app.all('*', (req, res, next)=>{
     //     message: `Can't find ${req.originalUrl} on this server `
     // })
 
-    const err = new Error(`Can't find ${req.originalUrl} on this server `);
-    err.status = 'fail';
-    err.statusCode = '404';
+
+    // This was used to create a custom error class that can be used to handle errors in the application
+    // const err = new Error(`Can't find ${req.originalUrl} on this server `);
+    // err.status = 'fail';
+    // err.statusCode = '404';
+
+    // After refactoring the code to use a custom error class, we can now create an instance of the AppError class and pass it to the next function
+    const err = new AppError(`Can't find ${req.originalUrl} on this server `, 404);
     next(err);
 })
 
 // Global Error handling middleware
 // The idea is to create a middleware and create the error it will handle, so the middleware is created below and the error is created above
-app.use((err, req, res, next) => {
-    err.statusCode = err.statusCode || 500;
-    err.message = err.message || 'error';
-    
-    res.status(err.statusCode).json({
-        status : err.status,
-        message : err.message
-    });
-});
+// Global error handling middleware
+app.use(golabalErrorHandler);
 
 module.exports = app;
 // ROUTING

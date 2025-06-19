@@ -51,10 +51,11 @@ module.exports = (err, req, res, next) => {
         if (error.code === 11000) error = handleDuplicateFieldsDB(error);
 
         sendErrorProd(error, res);
-    } else {
-        res.status(500).json({
-            status: 'error',
-            message: 'Something went very wrong!'
-        });
     }
+    //  else {
+    //     res.status(500).json({
+    //         status: 'error',
+    //         message: 'Something went very wrong!'
+    //     });
+    // }
 };

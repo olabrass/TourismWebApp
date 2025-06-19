@@ -112,7 +112,7 @@ tourSchema.pre('save', function(next) {
 // post Hook
 tourSchema.post('save', function(next) {
     console.log(this);
-    next();
+    
 });
 
 
@@ -125,11 +125,11 @@ tourSchema.pre(/^find/, function(next){
 })
 
 // QUERY MIDDLEWARE == post hook
-tourSchema.post(/^find/, function(docs, next){
-    console.log(this);
-    console.log(`I found this : ${docs.name}`);
-    next();
-})
+// tourSchema.post(/^find/, function(docs, next){
+//     console.log(this);
+//     console.log(`I found this : ${docs.name}`);
+//     next();
+// })
 
 // AGGREGATION MIDDLEWARE
  tourSchema.pre('aggregate', function(next){

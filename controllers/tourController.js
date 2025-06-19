@@ -113,13 +113,13 @@ const getAllTour = catchAsync(async(req, res, next) => {
 // The filter code below works same as above
         // const tours = await Tour.find().where('duration').lte(5).where('difficulty').equals('easy');
 
-    // res.status(200).json({
-    //     status: 'success',
-    //     result : tours.length,
-    //     data:{
-    //         tours
-    //     }
-    // });
+    res.status(200).json({
+        status: 'success',
+        result : tours.length,
+        data:{
+            tours
+        }
+    });
     // }catch(err){
     //   res.status(400).json({
     //     status: 'Failed', 
@@ -132,13 +132,11 @@ const getAllTour = catchAsync(async(req, res, next) => {
     const getTourById = catchAsync(async (req, res, next) =>{ 
     // both lines of code below work the same, but if you want to find other param apart from _id, then use findOne
     const tour = await Tour.findById(req.params.id);
+    console.log(req.params.id);
     // const tour = await Tour.findOne({id: req.params.id});
     if (!tour) {
-    return res.status(404).json({
-            status: 'failed',
-            message: 'Tour not found'
-
-    })};
+    return next(new AppError('No tour found with that ID', 404));
+    }
     res.status(200).json({
         status: 'success',
         data: { tour }
@@ -151,6 +149,9 @@ const getAllTour = catchAsync(async(req, res, next) => {
             new:true,
             runValidators:true
         });
+        if (!tour) {
+            return next(new AppError(`No tour found with that ID`, 404));   
+        }
             res.status(200).json({
                 status: 'success',
          data: {

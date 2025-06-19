@@ -5,7 +5,7 @@ const app = express();
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const AppError = require('./utils/appError')
-const golabalErrorHandler = require('./controllers/errorController');
+const globalErrorHandler = require('./controllers/errorController');
 
 // midleware for accepting data
 app.use(express.json());
@@ -46,7 +46,7 @@ app.all('*', (req, res, next)=>{
 // Global Error handling middleware
 // The idea is to create a middleware and create the error it will handle, so the middleware is created below and the error is created above
 // Global error handling middleware
-app.use(golabalErrorHandler);
+app.use(globalErrorHandler);
 
 module.exports = app;
 // ROUTING

@@ -82,7 +82,7 @@ const tourSchema = new mongoose.Schema({
     }
 },
 
-// For the virtual proper to show as part of the schema, eventhough it is not
+// For the virtual property to show as part of the schema, eventhough it is not
 {
     toJSON:{virtuals: true},
     toObject:{virtuals: true}

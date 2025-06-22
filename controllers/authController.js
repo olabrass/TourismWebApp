@@ -65,4 +65,37 @@ exports.login = catchAsync(async(req, res, next) => {
       token
     });
  
+});
+
+exports.protect = catchAsync(async(req, res, next)=>{
+let token;
+  // Check if token is provided in headers
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+  // If no token is provided, return an error
+  if (!token) {
+    return next(new AppError('You are not logged in! Please log in to get access.', 401));
+  }
+
+  // Verify the token
+  const decoded = await jwt.verify(token, process.env.JWT_SECRET);
+  
+  // Find the user by ID from the decoded token
+  const currentUser = await User.findById(decoded.id);
+  
+  // If user does not exist, return an error
+  if (!currentUser) {
+    return next(new AppError('The user belonging to this token does no longer exist.', 401));
+  }
+
+  // Check if user changed password after the token was issued
+  if (currentUser.changedPasswordAfter(decoded.iat)) {
+    return next(new AppError('User recently changed password! Please log in again.', 401));
+  }
+
+  // Attach user to request object
+  req.user = currentUser;
+  
+  next();
 })

@@ -6,6 +6,7 @@
 // MOUNTING ROUTER
 const router = express.Router();
  router.post('/signup', authController.signup); // User signup route
+ router.post('/login', authController.login); // User login route
  // USERS ROUTE
  router.route('/').get(getAllUsers).post(createUser);
  router.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);

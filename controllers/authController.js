@@ -1,3 +1,4 @@
+const {promisify} = require('util');
 const jwt = require('jsonwebtoken');
 const User = require('./../models/userModel');
 const  catchAsync = require('./../utils/catchAsync');
@@ -67,6 +68,7 @@ exports.login = catchAsync(async(req, res, next) => {
  
 });
 
+// Middleware to protect routes
 exports.protect = catchAsync(async(req, res, next)=>{
 let token;
   // Check if token is provided in headers
@@ -79,7 +81,7 @@ let token;
   }
 
   // Verify the token
-  const decoded = await jwt.verify(token, process.env.JWT_SECRET);
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
   
   // Find the user by ID from the decoded token
   const currentUser = await User.findById(decoded.id);
@@ -90,9 +92,9 @@ let token;
   }
 
   // Check if user changed password after the token was issued
-  if (currentUser.changedPasswordAfter(decoded.iat)) {
-    return next(new AppError('User recently changed password! Please log in again.', 401));
-  }
+  // if (currentUser.changedPasswordAfter(decoded.iat)) {
+  //   return next(new AppError('User recently changed password! Please log in again.', 401));
+  // }
 
   // Attach user to request object
   req.user = currentUser;

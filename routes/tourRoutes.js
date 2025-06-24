@@ -13,4 +13,4 @@ router.route('/monthly-plan/:year').get(tourController.getMonthlyPlan);
 router.route('/top-5-cheap').get(tourController.aliasTopTours, tourController.getAllTour);
 router.route('/').get(authController.protect, tourController.getAllTour).post(tourController.createTour);
 module.exports = router;    
-router.route('/:id').get(tourController.getTourById).patch(tourController.updateTour).delete(tourController.deleteTour);     
+router.route('/:id').get(tourController.getTourById).patch(tourController.updateTour).delete(authController.protect, authController.restrictTo('admin', 'lead-guide'), tourController.deleteTour);     

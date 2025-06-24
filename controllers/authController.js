@@ -18,7 +18,8 @@ exports.signup = catchAsync(async (req, res, next) => {
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
-    passwordConfirm: req.body.passwordConfirm
+    passwordConfirm: req.body.passwordConfirm,
+    role: req.body.role || 'user', // Default role is 'user'
   });
 const token = signToken(newUser._id);
 
@@ -92,12 +93,38 @@ let token;
   }
 
   // Check if user changed password after the token was issued
-  // if (currentUser.changedPasswordAfter(decoded.iat)) {
-  //   return next(new AppError('User recently changed password! Please log in again.', 401));
-  // }
+  if (currentUser.changedPasswordAfter(decoded.iat)) {
+    return next(new AppError('User recently changed password! Please log in again.', 401));
+  }
 
   // Attach user to request object
   req.user = currentUser;
   
+  //Grant access to the protected route
   next();
+});
+
+// Middleware to restrict access to certain roles
+exports.restrictTo = (...roles) => {
+  // roles is an array of allowed roles, e.g., ['admin', 'lead-guide']
+  return (req, res, next)=>{
+    if (!roles.includes(req.user.role)) {
+      return next(new AppError('You do not have permission to perform this action', 403));
+    }
+    next();
+  }
+};
+
+// Middleware to handle forgot password
+exports.forgotPassword =catchAsync(async (req, res, next) => {
+  //get user based on posted email
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return next(new AppError('There is no user with this email address', 404));
+  }
+  // Generate a reset token
+  // The createPasswordResetToken method is an instance method defined in the userModel
+  const resetToken = user.createPasswordResetToken();
+  await user.save({ validateBeforeSave: false });
+
 })

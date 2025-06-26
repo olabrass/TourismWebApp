@@ -10,7 +10,8 @@ const router = express.Router();
 
  // Password management routes
 router.post('/forgotPassword', authController.forgotPassword ); // Forgot password route
-//router.post('/resetPassword', authController.resetPassword); // Reset password route
+router.patch('/resetPassword/:token', authController.resetPassword); // Reset password route with token
+
 
  // USERS ROUTE
  router.route('/').get(getAllUsers).post(createUser);

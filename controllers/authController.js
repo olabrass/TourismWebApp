@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('./../models/userModel');
 const  catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
+const { sendEmail } = require('./../utils/email');
 
 // Function to sign a JWT token
 const signToken = (id) => {
@@ -127,4 +128,6 @@ exports.forgotPassword =catchAsync(async (req, res, next) => {
   const resetToken = user.createPasswordResetToken();
   await user.save({ validateBeforeSave: false });
 
-})
+});
+
+const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;

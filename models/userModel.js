@@ -57,6 +57,17 @@ userSchema.pre("save", async function(next){
     next();
 });
 
+userSchema.pre('save', function(next){
+    // Only run this function if password was modified or if the document is new
+    // This is to ensure that the passwordChangedAt field is only set when the password is changed
+    // and not when the document is created for the first time
+    if(!this.isModified('password') || this.isNew) return next();
+
+    // Set the passwordChangedAt field to the current time
+    this.passwordChangedAt = Date.now() - 1000; // Subtracting 1000ms to ensure it is before the JWT issued time
+    next();
+})
+
 // Instance method to check if the provided password matches the stored password
 userSchema.methods.correctPassword = async function(candidatePassword, userPassword) {
     return await bcrypt.compare(candidatePassword, userPassword);

@@ -45,7 +45,14 @@ const userSchema = new mongoose.Schema({
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,
+    active:{
+        type:Boolean,
+        default:true,
+        select:false
+    }
 }); 
+
+
 userSchema.pre("save", async function(next){
     // Only run this function if password was actually modified
     if(!this.isModified('password')) return next();
@@ -97,5 +104,13 @@ userSchema.methods.createPasswordResetToken = function() {
     return resetToken;
 };
 
+//Query middleware
+userSchema.pre(/^find/, function(next) {
+    // This will exclude all users that are not active
+    this.find({ active:{$ne:false}});
+    next();
+});
+
+// Create the User model from the schema
 const User = mongoose.model('User', userSchema);
 module.exports = User;

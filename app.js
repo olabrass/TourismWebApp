@@ -2,13 +2,50 @@ const express = require('express');
 const fs = require('fs');
 const morgan = require('morgan');
 const app = express();
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+const hpp = require('hpp');
+
+
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const AppError = require('./utils/appError')
 const globalErrorHandler = require('./controllers/errorController');
 
-// midleware for accepting data
-app.use(express.json());
+app.use(helmet()); // Middleware to set HTTP headers for security
+
+if (process.env.NODE_ENV === 'development') {
+    // This is a middleware that logs all requests to the console in development mode
+    app.use(morgan('dev'));
+}
+
+// Rate limiting middleware to limit the number of requests from a single IP address
+const limiter = rateLimit({ 
+    max: 100, // Maximum number of requests allowed from a single IP address
+    windowMs: 60 * 60 * 1000, // Time window in milliseconds
+    message: 'Too many requests from this IP, please try again in an hour!' // Message to send when the limit is exceeded
+});
+
+// Apply the rate limiting middleware to all requests
+app.use('/api', limiter);
+
+// midleware for accepting data, body parser
+//app.use(express.json());
+app.use(express.json({limit:'10kb'})); // Middleware to parse JSON data in request body with a limit of 10kb
+app.use(mongoSanitize()); // Middleware to sanitize user input against NoSQL query injection
+app.use(xss()); // Middleware to sanitize user input against XSS attacks
+app.use(hpp({
+    // Whitelist of query parameters to allow duplicates for
+    whitelist: ['duration', 'ratingsAverage', 'ratingsQuantity', 'maxGroupSize', 'difficulty', 'price'] 
+})); // Middleware to prevent parameter pollution by removing duplicate query parameters
+
+
+ //Data sanitization against NoSQL query
+
+
+ //Data sanitization against XSS
 
 // Middleware for serving a static file
 app.use(express.static(`${__dirname}/public`));

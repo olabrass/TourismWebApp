@@ -11,9 +11,37 @@ const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN
   });
-
-
 }
+
+// Function to create and send a JWT token in the response
+// This function is used in both signup and login methods to send the token back to the client
+const createSendToken = (user, statusCode, res) => {
+  // Generate a JWT token
+  const token = signToken(user._id);
+
+  const cookieOptions = {
+    // Set the cookie to expire in the number of days specified in the environment variable
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIES_EXPIRES_IN * 24 * 60 * 60 * 1000 // Convert days to milliseconds
+    ),
+    httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
+    secure: process.env.NODE_ENV === 'production', // Set to true in production to use HTTPS
+    sameSite: 'strict', // Helps prevent CSRF attacks
+  }
+  res.cookie('jwt', token, cookieOptions);
+
+  // Remove the password from the user object before sending it in the response
+  user.password = undefined; // Ensure password is not sent in the response
+
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user, 
+    },
+  });
+};
+
 
 // Middleware to handle user signup
 exports.signup = catchAsync(async (req, res, next) => {
@@ -25,7 +53,6 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm,
     role: req.body.role || 'user', // Default role is 'user'
   });
-const token = signToken(newUser._id);
 
   // Generate a JWT token for the new user
   // const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
@@ -33,13 +60,7 @@ const token = signToken(newUser._id);
 
   
   // Send response
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: {
-      user: newUser,
-    },
-  });
+  createSendToken(newUser, 201, res);
 });
 
 // Middleware to handle user login
@@ -66,10 +87,7 @@ exports.login = catchAsync(async(req, res, next) => {
   //   });
 
     // Send response
-    res.status(200).json({
-      status: 'success',
-      token
-    });
+    createSendToken (user, 200, res);
  
 });
 
@@ -176,11 +194,7 @@ exports.resetPassword =catchAsync(async (req, res, next) => {
   // Update changedPasswordAt property for the user
 
   // Log the user in, send JWT
-  const token = signToken(user._id);
-  res.status(200).json({
-    status: 'success',
-    token,
-  });
+  createSendToken (user, 200, res);
 });
 
 //Update password for a logged in user
@@ -197,9 +211,5 @@ exports.updatePassword = catchAsync(async(req, res, next) =>{
   await user.save(); // Save the updated user
   //user.findByIdAndUpdate will not work as intended here because it does not trigger the pre-save middleware for password hashing
   // 4. Log the user in, send JWT
-  const token = signToken(user._id);
-  res.status(200).json({
-    status: 'success',
-    token,
-  });
+  createSendToken (user, 200, res);
 })

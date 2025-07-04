@@ -37,7 +37,7 @@ app.use(express.json({limit:'10kb'})); // Middleware to parse JSON data in reque
 app.use(mongoSanitize()); // Middleware to sanitize user input against NoSQL query injection
 app.use(xss()); // Middleware to sanitize user input against XSS attacks
 app.use(hpp({
-    // Whitelist of query parameters to allow duplicates for
+    // Whitelist of query parameters to allow duplicates for 
     whitelist: ['duration', 'ratingsAverage', 'ratingsQuantity', 'maxGroupSize', 'difficulty', 'price'] 
 })); // Middleware to prevent parameter pollution by removing duplicate query parameters
 

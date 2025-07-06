@@ -15,7 +15,8 @@ const port = process.env.PORT || 3000;
 
 //  READ JSON FILE TO IMPORT TO DATABASE
 // JSON.parse converts from JSON object to Javascript object
-const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours-simple.json`, 'utf-8'));
+const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, 'utf-8'));
+//const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours-simple.json`, 'utf-8'));
 
 // IMPORT DATA INTO DB
 // use the command below to import or delete data 

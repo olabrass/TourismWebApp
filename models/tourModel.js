@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 const validator = require('validator');
+//const User = require('./userModel'); // Importing the User model to use in the tourSchema
 
-// CREATING A SCHEMA
+// CREATING A SCHEMA(Schema type object)
 const tourSchema = new mongoose.Schema({
     name:{
         type:String,
@@ -79,7 +80,43 @@ const tourSchema = new mongoose.Schema({
     secretTour:{
         type: Boolean,
         default: false
-    }
+    },
+    startLocation:{
+        // GeoJSON (GeoSpartial Data)
+        type: {
+            type: String,
+            default: 'Point',
+            enum: ['Point']
+        },
+        coordinates: [Number],
+        address: String,
+        description: String
+    },
+    locations: [
+        {
+            type: {
+                type: String,
+                default: 'Point',
+                enum: ['Point']
+            },
+            coordinates: [Number],
+            address: String,
+            description: String,
+            day: Number
+        }
+    ],
+
+    // Embedding guides, this is not the best way to do it, but it is used for learning purposes
+   // guides:Array,
+
+   //referencing guides on User document
+    guides: [
+        {
+            type: mongoose.Schema.ObjectId,
+            ref: 'User'
+        }
+    ],
+
 },
 
 // For the virtual property to show as part of the schema, eventhough it is not
@@ -103,11 +140,31 @@ tourSchema.pre('save', function(next) {
     next();
 });
 
+// Pre hook to populate the guides field with User documents(Embeded reference)
+// tourSchema.pre('save', async function(next) {
+//     const guidesPromises = this.guides.map(async (id) => await User.findById(id));
+//     this.guides = await Promise.all(guidesPromises);
+//     // this.guides = guidesPromises;
+//     // console.log(this.guides);
+//     next();
+// });
+
+
 // Pre hook, shows will can use more than one pre hook or post hook on one document
 tourSchema.pre('save', function(next) {
     console.log('Will save document....');
     next();
 });
+
+// Pre hook to populate the guides field with User documents(Reference)
+// Note that this is a query middleware, it runs before any query that starts with 'find
+tourSchema.pre(/^find/, function(next) {
+    this.populate({
+            path:'guides',
+            select:'-__v -passwordChagedAt' //Exclude __v and passwordChangedAt from the query
+            })
+     next();
+        });
 
 // post Hook
 tourSchema.post('save', function(next) {

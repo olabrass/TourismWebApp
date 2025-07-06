@@ -132,7 +132,7 @@ const getAllTour = catchAsync(async(req, res, next) => {
     const getTourById = catchAsync(async (req, res, next) =>{ 
     // both lines of code below work the same, but if you want to find other param apart from _id, then use findOne
     const tour = await Tour.findById(req.params.id);
-    console.log(req.params.id);
+   // console.log(req.params.id);
     // const tour = await Tour.findOne({id: req.params.id});
     if (!tour) {
     return next(new AppError('No tour found with that ID', 404));

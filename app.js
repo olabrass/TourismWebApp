@@ -13,6 +13,7 @@ const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const AppError = require('./utils/appError')
 const globalErrorHandler = require('./controllers/errorController');
+const reviewRouter = require('./routes/reviewRoutes');
 
 app.use(helmet()); // Middleware to set HTTP headers for security
 
@@ -60,6 +61,7 @@ app.use((req, res, next) => {
 // USING THE MOUNTED ROUTER AS A MIDDLEWARE
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 // HANDLING UNHANDLED ROUTE === If a request should get to this line of code, it simply means that the routes above did not the the route requested by the user, so we need to handle all other route not defined in the program
 

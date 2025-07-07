@@ -117,6 +117,13 @@ const tourSchema = new mongoose.Schema({
         }
     ],
 
+    review: [
+        {
+            type: mongoose.Schema.ObjectId,
+            ref: 'review'
+        }
+    ],
+
 },
 
 // For the virtual property to show as part of the schema, eventhough it is not
@@ -128,6 +135,15 @@ const tourSchema = new mongoose.Schema({
 // VIRTUAL PROPERTY - 'durationInWeek' functions like a collection object, but not stored in the database, not that the 'duration' is from the collection(Schema).
 tourSchema.virtual('durationInWeek').get(function(){
     return this.duration / 7;
+});
+
+// VIRTUAL POPULATE
+// This is used to populate the reviews field in the Tour model, it is not stored in the database, but it is used to get the reviews for a tour when querying the Tour model.
+// This is a virtual property, it does not exist in the database, but it is used
+tourSchema.virtual('reviews', {
+    ref:'review',
+    foreignField:'tour', //"tour" is the field in the Review model that references the Tour model(it stores the Tour ID)
+    localField:'_id' // "_id" is the field in the Tour model that is referenced by the Review model
 });
 
 

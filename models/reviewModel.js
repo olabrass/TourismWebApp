@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const tour = require('./tourModel');
 
 
 const reviewSchema = new mongoose.Schema({
@@ -21,7 +20,7 @@ const reviewSchema = new mongoose.Schema({
     tour: {
         //parent referencing
         type: mongoose.Schema.ObjectId,
-        ref: 'Tour',
+        ref: 'Tours',
         required: [true, 'Review must belong to a tour']
     },
     user: {

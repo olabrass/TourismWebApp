@@ -131,7 +131,7 @@ const getAllTour = catchAsync(async(req, res, next) => {
 // GET A TOUR
     const getTourById = catchAsync(async (req, res, next) =>{ 
     // both lines of code below work the same, but if you want to find other param apart from _id, then use findOne
-    const tour = await Tour.findById(req.params.id);
+    const tour = await Tour.findById(req.params.id).populate('reviews');
    // console.log(req.params.id);
     // const tour = await Tour.findOne({id: req.params.id});
     if (!tour) {

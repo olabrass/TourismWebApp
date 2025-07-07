@@ -37,13 +37,13 @@ const reviewSchema = new mongoose.Schema({
     toObject: { virtuals: true }
 });
 
-reviewSchema.pre(/^find/, function(next){
-    this.populate({
-        path: 'tour',
-        select:'name'
-    })
-    next();
-})
+// reviewSchema.pre(/^find/, function(next){
+//     this.populate({
+//         path: 'tour',
+//         select:'name'
+//     })
+//     next();
+// })
 
 //Pre hook to populate the user details in the review
 // This will run before any find query on the review model

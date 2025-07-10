@@ -2,6 +2,7 @@ const express = require('express');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const factory = require('./handlerFactory');
 
   // router middleware
   const router = express.Router();
@@ -52,44 +53,18 @@ const deleteMe = catchAsync(async(req, res, next) => {
 
 
  //  USER ROUTE HANDLER
- const getAllUsers = catchAsync(async(req, res, next) => {
-    // Fetch all users from the database
-    const users = await User.find();
-    res.status(200).json({
-        status: "Success",
-        results: users.length,
-        message: {
-            users: users
-        }
-    })
- });
-
  const createUser = (req, res) => {
-    res.status(500).json({
+     res.status(500).json({
         status: "Error",
-        message: "Route Not Yet Created"
+        message: "Route Not Yet Created, please use /signup instead",
     })
  };
 
- const getUser = (req, res) => {
-    res.status(500).json({
-        status: "Error",
-        message: "Route Not Yet Created"
-    })
- };
 
- const updateUser = (req, res) => {
-    res.status(500).json({
-        status: "Error",
-        message: "Route Not Yet Created"
-    })
- };
-
- const deleteUser = (req, res) => {
-    res.status(500).json({
-        status: "Error",
-        message: "Route Not Yet Created"
-    })
- };
+ const getAllUsers = factory.getAll(User);
+ const getUser = factory.getOne(User);
+ //Do not update password with this
+ const updateUser = factory.updateOne(User);
+ const deleteUser = factory.deleteOne(User);
 
  module.exports = {getAllUsers, createUser, getUser, updateUser, deleteUser, updateMe, deleteMe};

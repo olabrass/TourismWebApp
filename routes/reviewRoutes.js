@@ -4,9 +4,11 @@ const reviewController = require('./../controllers/reviewController');
 
 
 // MOUNTING ROUTER
+// This will allow us to merge the params from the parent route (tourId) to this route
 const router = express.Router({mergeParams:true});
 
-
+// This middleware will protect all routes below it, because middleware is executed sequentially
+router.use(authController.protect);
 
 router.route('/')
 .get(reviewController.getAllReviews)
@@ -17,8 +19,10 @@ reviewController.createReview);
 
 router.route('/:id')
 .get(reviewController.getReview)
-.patch(reviewController.updateReview)
-.delete(reviewController.deleteReview);
+.patch(authController.restrictTo('user', 'admin'),
+reviewController.updateReview)
+.delete(authController.restrictTo('user', 'admin'),
+reviewController.deleteReview);
 
 
 module.exports = router; 

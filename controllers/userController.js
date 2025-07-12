@@ -48,8 +48,14 @@ const deleteMe = catchAsync(async(req, res, next) => {
         status: "Success",
         data:null
     });
-})
+});
 
+// Get current user (User gets his own data)
+const getMe = (req, res, next) => {
+    // This middleware sets the user id to req.params.id
+    req.params.id = req.user.id;
+    next();
+};
 
 
  //  USER ROUTE HANDLER
@@ -67,4 +73,4 @@ const deleteMe = catchAsync(async(req, res, next) => {
  const updateUser = factory.updateOne(User);
  const deleteUser = factory.deleteOne(User);
 
- module.exports = {getAllUsers, createUser, getUser, updateUser, deleteUser, updateMe, deleteMe};
+ module.exports = {getAllUsers, createUser, getUser, updateUser, deleteUser, updateMe, deleteMe, getMe};

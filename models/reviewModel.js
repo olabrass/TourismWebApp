@@ -55,6 +55,47 @@ reviewSchema.pre(/^find/, function(next){
     next();
 });
 
+
+// Static method to calculate average ratings for a tour
+reviewSchema.statics.calcAverageRatings = async function(tourId) {
+    const stats = await this.aggregate([
+        {
+            $match: { tour: tourId }
+        },
+        {
+            $group: {
+                _id: '$tour',
+                nRating: { $sum: 1 },
+                avgRating: { $avg: '$rating' }
+            }
+        }
+    ]);
+
+    if (stats.length > 0) {
+        await mongoose.model('Tours').findByIdAndUpdate(tourId, {
+            ratingsQuantity: stats[0].nRating,
+            ratingsAverage: stats[0].avgRating
+        });
+    } else {
+        await mongoose.model('Tours').findByIdAndUpdate(tourId, {
+            ratingsQuantity: 0,
+            ratingsAverage: 4.5
+        });
+    }
+};
+
+reviewSchema.post('save', function() {
+    // this points to the current review
+    this.constructor.calcAverageRatings(this.tour);
+});
+
+reviewSchema.pre(/^findOneAnd/, async function(next) {  
+    
+    // this points to the current query
+    this.r = await this.findOne();
+    next();
+});
+
 // // Prevent duplicate reviews by the same user for the same tour
 // reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
 

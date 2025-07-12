@@ -132,6 +132,10 @@ const tourSchema = new mongoose.Schema({
     toObject:{virtuals: true}
 });
 
+
+tourSchema.index({price:1, ratingsAverage:-1}); // Compound index, to sort by price and ratingsAverage for better performance(faster querying)
+tourSchema.index({slug:1});
+
 // VIRTUAL PROPERTY - 'durationInWeek' functions like a collection object, but not stored in the database, not that the 'duration' is from the collection(Schema).
 tourSchema.virtual('durationInWeek').get(function(){
     return this.duration / 7;

@@ -71,11 +71,14 @@ reviewSchema.statics.calcAverageRatings = async function(tourId) {
         }
     ]);
 
+    // If there are no reviews, set default values
+    // If there are reviews, update the tour with the calculated ratings
     if (stats.length > 0) {
         await mongoose.model('Tours').findByIdAndUpdate(tourId, {
             ratingsQuantity: stats[0].nRating,
             ratingsAverage: stats[0].avgRating
         });
+        //Set default values if no reviews exist
     } else {
         await mongoose.model('Tours').findByIdAndUpdate(tourId, {
             ratingsQuantity: 0,
@@ -96,8 +99,13 @@ reviewSchema.pre(/^findOneAnd/, async function(next) {
     next();
 });
 
-// // Prevent duplicate reviews by the same user for the same tour
-// reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
+reviewSchema.post(/^findOneAnd/, async function() {
+    // this points to the current review
+    await this.r.constructor.calcAverageRatings(this.r.tour);
+});
+
+// Prevent duplicate reviews by the same user for the same tour
+reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
 
 const Review = mongoose.model('review', reviewSchema);
 module.exports = Review;

@@ -30,9 +30,15 @@ router.route('/top-5-cheap')
     tourController.getAllTour
 );
 
-
+// TOURS WITHIN A DISTANCE
+// This route will get all tours within a certain distance from a given point
 router.route('/tours-within/:distance/center/:latlng/unit/:unit')
 .get(tourController.getToursWithin);
+
+// DISTANCE TO ALL AVAILABLE TOURS FROM A PARTICULAR LOCATION
+router.route('/distances/:latlng/unit/:unit')
+.get(tourController.getDistanceTours);
+
 
 router.route('/')
 .get(tourController.getAllTour)

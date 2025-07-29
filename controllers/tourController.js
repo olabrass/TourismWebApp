@@ -264,4 +264,58 @@ const stats = await Tour.aggregate([
         
     });
 
-     module.exports = {aliasTopTours, getAllTour, createTour, getTourById, updateTour, deleteTour, checkId, getTourStats, getMonthlyPlan};
+    // GET TOURS WITHIN A DISTANCE
+    // This will find tours within a certain distance from a given latitude and longitude
+    ///tours-within/:distance/center/:latlng/unit/:unit'
+    const getToursWithin = catchAsync(async (req, res, next) => {
+        const { distance, latlng, unit } = req.params;
+        const [lat, lng] = latlng.split(',');
+        const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1; // Radius in radians
+
+        if (!lat || !lng) {
+            return next(new AppError('Please provide latitude and longitude in the format lat,lng.', 400));
+        }
+//$geoWithin and $centerSphere are both geospatial operators used to query documents based on their location.
+        const tours = await Tour.find({
+            startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } }
+        });
+
+        res.status(200).json({
+            status: 'success',
+            result: tours.length,
+            data: { tours }
+        });
+    });
+
+    // GET DISTANCE TO ALL AVAILABLE TOURS FROM A PARTICULAR LOCATION
+    // This will calculate the distance from a given latitude and longitude to all available tours
+const getDistanceTours = catchAsync(async (req, res, next) => {
+    const { latlng, unit } = req.params;
+    const [lat, lng] = latlng.split(',');
+    const multiplier = unit === 'mi' ? 0.000621371 : 0.001; // Convert to miles or kilometers
+    if (!lat || !lng) {
+        return next(new AppError('Please provide latitude and longitude in the format lat,lng.', 400));
+    }
+    const distances = await Tour.aggregate([
+        {
+            $geoNear: {
+                near: { type: 'Point', coordinates: [lng * 1, lat * 1] },
+                distanceField: 'distance',
+                spherical: true,
+                distanceMultiplier: multiplier
+            }
+        },
+        {
+            $project: {
+                name: 1,
+                distance: 1
+            }
+        }
+    ]);
+    res.status(200).json({
+        status: 'success',
+        data: { distances }
+    });
+});
+
+     module.exports = {aliasTopTours, getAllTour, createTour, getTourById, updateTour, deleteTour, checkId, getTourStats, getMonthlyPlan, getToursWithin, getDistanceTours};

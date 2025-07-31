@@ -137,8 +137,11 @@ const tourSchema = new mongoose.Schema({
 tourSchema.index({price:1, ratingsAverage:-1}); // Compound index, to sort by price and ratingsAverage for better performance(faster querying)
 tourSchema.index({slug:1});
 // Geospatial index for the startLocation field, to query by distance
+// tourSchema.index({startLocation: '2dsphere'}); // 2dsphere index
+// Geospatial index for the locations field, to query by distance
 tourSchema.index({startLocation: '2dsphere'}); // 2dsphere index
-tourSchema.index({ location: '2dsphere' });
+
+
 
 
 // VIRTUAL PROPERTY - 'durationInWeek' functions like a collection object, but not stored in the database, not that the 'duration' is from the collection(Schema).

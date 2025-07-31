@@ -302,7 +302,8 @@ const getDistanceTours = catchAsync(async (req, res, next) => {
                 near: { type: 'Point', coordinates: [lng * 1, lat * 1] },
                 distanceField: 'distance',
                 spherical: true,
-                distanceMultiplier: multiplier
+                distanceMultiplier: multiplier,
+               
             }
         },
         {
@@ -314,6 +315,7 @@ const getDistanceTours = catchAsync(async (req, res, next) => {
     ]);
     res.status(200).json({
         status: 'success',
+        result: distances.length,
         data: { distances }
     });
 });

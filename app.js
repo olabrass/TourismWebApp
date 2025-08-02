@@ -1,19 +1,25 @@
 const express = require('express');
 const fs = require('fs');
 const morgan = require('morgan');
-const app = express();
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 
-
+const path = require('path');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const AppError = require('./utils/appError')
 const globalErrorHandler = require('./controllers/errorController');
 const reviewRouter = require('./routes/reviewRoutes');
+
+
+const app = express();
+app.set('view engine', 'pug'); // Setting the view engine to pug
+app.set('views', path.join(__dirname, 'views')); // Setting the views directory
+app.use(express.static(path.join(__dirname, 'public'))); // Middleware for Serving static files from the public directory
+
 
 app.use(helmet()); // Middleware to set HTTP headers for security
 
@@ -49,14 +55,19 @@ app.use(hpp({
  //Data sanitization against XSS
 
 // Middleware for serving a static file
-app.use(express.static(`${__dirname}/public`));
+// app.use(express.static(`${__dirname}/public`));
 
 // custom middleware
 app.use((req, res, next) => {
     req.requesTime = new Date().toISOString();
     next();
 }
-)
+);
+
+
+app.get('/', (req, res) => {
+    res.status(200).render('base');
+});
 
 // USING THE MOUNTED ROUTER AS A MIDDLEWARE
 app.use('/api/v1/tours', tourRouter);
@@ -80,7 +91,7 @@ app.all('*', (req, res, next)=>{
     // After refactoring the code to use a custom error class, we can now create an instance of the AppError class and pass it to the next function
     const err = new AppError(`Can't find ${req.originalUrl} on this server `, 404);
     next(err);
-})
+});
 
 // Global Error handling middleware
 // The idea is to create a middleware and create the error it will handle, so the middleware is created below and the error is created above

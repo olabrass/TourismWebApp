@@ -1,10 +1,41 @@
 doctype html 
 html
   head
-   title The Park Camper
-   link(rel="stylesheet", href="styles.css")    
+   link(rel='stylesheet', href='styles.css')    
    link(rel='shortcut icon', href='favicon.ico')
+   meta(charset='UTF-8')
+   meta(name='viewport' content='width=device-width, initial-scale=1.0')
+   link(href='https://fonts.googleapis.com/css?family=Lato:300,300i,700' rel='stylesheet')
+   link(rel='stylesheet' href='/css/style.css')
+   link(rel='shortcut icon' type='image/png' href='/img/favicon.png')
+   title Natours | #{title}
 
   body   
-   h1 The park Camper
-   p this is just some text to test the pug template
+   //-  HEADER
+   include _header.pug
+
+    //- CONTENT
+   block content
+    
+  
+   //- FOOTER
+   include _footer.pug
+  
+
+
+        
+        
+          
+        
+
+  
+  
+
+
+  //-  h1 tour The park Camper
+  //-  h2= User.toUpperCase()
+  //-  - const x = 5
+  //-   p The value of x is #{x}
+  //-   h2 #{2*x}
+  //-   h2= 2*x
+  //-  p this is just some text to test the pug template

@@ -16,6 +16,10 @@ const tourSchema = new mongoose.Schema({
         // validate:[validator.isAlpha, 'Tour name Must be alpanumeric']
         
     }, 
+    slug: {
+        type: String,
+        unique: true
+    },
     ratingsAverage:{
         type: Number,
         default:4.5,

@@ -1,14 +1,14 @@
 doctype html 
 html
   head
-   link(rel='stylesheet', href='styles.css')    
-   link(rel='shortcut icon', href='favicon.ico')
-   meta(charset='UTF-8')
-   meta(name='viewport' content='width=device-width, initial-scale=1.0')
-   link(href='https://fonts.googleapis.com/css?family=Lato:300,300i,700' rel='stylesheet')
-   link(rel='stylesheet' href='/css/style.css')
-   link(rel='shortcut icon' type='image/png' href='/img/favicon.png')
-   title Natours | #{title}
+    block head    
+      link(rel='shortcut icon', href='favicon.ico')
+      meta(charset='UTF-8')
+      meta(name='viewport' content='width=device-width, initial-scale=1.0')
+      link(href='https://fonts.googleapis.com/css?family=Lato:300,300i,700' rel='stylesheet')
+      link(rel='stylesheet' href='/css/styles.css')
+      link(rel='shortcut icon' type='image/png' href='/img/favicon.png')
+      title Natours | #{title}
 
   body   
    //-  HEADER
@@ -20,7 +20,9 @@ html
   
    //- FOOTER
    include _footer.pug
-  
+   script(src='https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js')
+   script(src='/js/mapbox.js')
+   script(src='/js/login.js')
 
 
         
